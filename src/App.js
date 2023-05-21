@@ -14,7 +14,7 @@ import React, {
 const dummyList = [
   {
     id: 1,
-    author: "이정환",
+    author: "구태호",
     content: "하이 1",
     emotion: 5,
     created_date: new Date().getTime(),
