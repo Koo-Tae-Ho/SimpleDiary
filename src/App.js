@@ -5,45 +5,46 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useReducer,
   useRef,
-  useState,
 } from "react";
 
-//https://jsonplaceholder.typicode.com/comments
-/*
-const dummyList = [
-  {
-    id: 1,
-    author: "이정환",
-    content: "하이 1",
-    emotion: 5,
-    created_date: new Date().getTime(),
-  },
-  {
-    id: 2,
-    author: "홍길동",
-    content: "하이 2",
-    emotion: 2,
-    created_date: new Date().getTime(),
-  },
-  {
-    id: 3,
-    author: "유인나",
-    content: "하이 3",
-    emotion: 3,
-    created_date: new Date().getTime(),
-  },
-  {
-    id: 4,
-    author: "그리디언",
-    content: "하이 4",
-    emotion: 4,
-    created_date: new Date().getTime(),
-  },
-];*/
+const reducer = (state, action) => {
+  //상태변화가 일어나기 직전의 state, 어떤 상태변화를 일으켜야하는지에 대한 정보를 담은 action 객체
+  switch (
+    action.type //reducer가 리턴하는 값이 새로운 상태의 값
+  ) {
+    case "INIT": {
+      return action.data;
+    }
+    case "CREATE": {
+      const created_date = new Date().getTime();
+      const newItem = {
+        ...action.data,
+        created_date,
+      };
+      return [newItem, ...state];
+    }
+    case "REMOVE": {
+      return state.filter((it) => it.id !== action.targetId);
+    }
+    case "EDIT": {
+      return state.map((it) =>
+        it.id === action.targetId ? { ...it, content: action.newContent } : it
+      );
+    }
+    default:
+      return state;
+  }
+};
+//dispatch를 호출하면 reducer가 실행되고, 그 reducer가 리턴하는 값이 data의 값이 됨.
 
 function App() {
-  const [data, setData] = useState([]); // data:일기 데이터, 일기 데이터는 빈배열로 시작, setDate: 일기 상태변화
+  // const [data, setData] = useState([]); // data:일기 데이터, 일기 데이터는 빈배열로 시작, setDate: 일기 상태변화
+
+  const [data, dispatch] = useReducer(reducer, []);
+  // 기존의 state이름: data, 항상 dispatch, reducer: 상태변화를 처리할 함수(직접구현), dataState의 초기값
+
   const dataId = useRef(0);
 
   const getData = async () => {
@@ -60,7 +61,8 @@ function App() {
         id: dataId.current++,
       };
     }); //0~19인덱스까지 짜름, 배열의 각각 모든요소를 순회해서 map함수의 콜백함수안에서 리턴하는 값들을 모아서 배열을 만들어 initData에 넣음
-    setData(initData);
+
+    dispatch({ type: "INIT", data: initData });
   };
 
   useEffect(() => {
@@ -69,32 +71,22 @@ function App() {
 
   const onCreate = useCallback((author, content, emotion) => {
     //새로운 일기를 추가함
-    const created_date = new Date().getTime();
-    const newItem = {
-      author,
-      content,
-      emotion,
-      created_date,
-      id: dataId.current,
-    };
+    dispatch({
+      type: "CREATE",
+      data: { author, content, emotion, id: dataId.current },
+    });
+
     dataId.current += 1;
-    setData((data) => [newItem, ...data]); //setData함수에 함수를 전달하는 것을 함수 업데이트
   }, []); //배열을 비워도 항상 최신의 state를 data 인자를 통해 참고할 수 있게되면서 배열을 비워도됨.
 
   const onRemove = useCallback((targetId) => {
-    setData((data) => data.filter((it) => it.id !== targetId)); //setData함수에 전달되는 파라미터에 최신 state가 전달되기 때문에, 항상 최신 state를 이용하기 위해서는 함수형 업데이트에 인자부분의 데이터를 사용, 리턴부분에 데이터를 사용해야 최신형 업데이트를 사용가능
+    dispatch({ type: "REMOVE", targetId });
   }, []);
 
   const onEdit = useCallback((targetId, newContent) => {
     //targetId를 갖는 일기를 수정하는 함수
-    setData(
-      (
-        data //setDate를 통해 값을 전달할꺼임
-      ) =>
-        data.map((it) =>
-          it.id === targetId ? { ...it, content: newContent } : it
-        )
-    );
+
+    dispatch({ type: "EDIT", targetId, newContent });
   }, []);
 
   const getDiaryAnalysis = useMemo(() => {
