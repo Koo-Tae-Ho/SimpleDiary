@@ -9,7 +9,7 @@ import React, {
   useRef,
 } from "react";
 
-//v1.0.1(로직 분리하기)
+//v1.0.2(Context생성, Context Provider 만들어서 Props 드릴링 해결)
 
 const reducer = (state, action) => {
   //상태변화가 일어나기 직전의 state, 어떤 상태변화를 일으켜야하는지에 대한 정보를 담은 action 객체
@@ -40,6 +40,9 @@ const reducer = (state, action) => {
   }
 };
 //dispatch를 호출하면 reducer가 실행되고, 그 reducer가 리턴하는 값이 data의 값이 됨.
+
+export const DiaryStateContext = React.createContext(); //export default는 파일 하나당 하나밖에 못 사용함.
+export const DiaryDispatchContext = React.createContext();
 
 function App() {
   const [data, dispatch] = useReducer(reducer, []);
@@ -85,10 +88,13 @@ function App() {
 
   const onEdit = useCallback((targetId, newContent) => {
     //targetId를 갖는 일기를 수정하는 함수
-
     dispatch({ type: "EDIT", targetId, newContent });
   }, []);
 
+  const memoizedDispatches = useMemo(() => {
+    //useMemo를 활용하여 재생성되지 않게 객체를 묶어줘야함
+    return { onCreate, onRemove, onEdit };
+  }, []);
   const getDiaryAnalysis = useMemo(() => {
     //console.log("일기 분석 시작");
 
@@ -101,14 +107,18 @@ function App() {
   const { goodCount, badCount, goodRatio } = getDiaryAnalysis; //값을 사용해야하기 때문에 () 빼준다.
 
   return (
-    <div className="App">
-      <DiaryEditor onCreate={onCreate} />
-      <div>전체 일기 : {data.length}</div>
-      <div>감정이 좋은 일기 개수: {goodCount}</div>
-      <div>감정이 좋은 일기 개수: {badCount}</div>
-      <div>감정이 좋은 일기 비율: {goodRatio}</div>
-      <DiaryList onEdit={onEdit} onRemove={onRemove} diaryList={data} />
-    </div>
+    <DiaryStateContext.Provider value={data}>
+      <DiaryDispatchContext.Provider value={memoizedDispatches}>
+        <div className="App">
+          <DiaryEditor />
+          <div>전체 일기 : {data.length}</div>
+          <div>감정이 좋은 일기 개수: {goodCount}</div>
+          <div>감정이 좋은 일기 개수: {badCount}</div>
+          <div>감정이 좋은 일기 비율: {goodRatio}</div>
+          <DiaryList />
+        </div>
+      </DiaryDispatchContext.Provider>
+    </DiaryStateContext.Provider>
   );
 }
 //data만 diaryList로 넘겨준다.

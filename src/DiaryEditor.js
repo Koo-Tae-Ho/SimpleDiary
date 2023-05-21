@@ -1,9 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { DiaryDispatchContext } from "./App";
 //컴포넌트는 본인이 가진 state에 변화가 생겼거나, 부모 컴포넌트가 리렌더링이 일어나거나, 자신이 받은 prop이 변경이되면 렌더링이 일어남
 
-const DiaryEditor = ({ onCreate }) => {
+const DiaryEditor = () => {
   //props로 onCreate함수 받음
   //onCreate함수가 App 컴퍼런트가 렌더링이 될때마다 계속 다시 만들어져서 렌더링이 계속 발생
+
+  const { onCreate } = useContext(DiaryDispatchContext);
 
   const authorInput = useRef();
   const contentInput = useRef();
