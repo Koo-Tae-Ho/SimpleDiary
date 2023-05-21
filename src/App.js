@@ -9,6 +9,7 @@ import React, {
   useRef,
 } from "react";
 
+<<<<<<< HEAD
 const reducer = (state, action) => {
   //상태변화가 일어나기 직전의 state, 어떤 상태변화를 일으켜야하는지에 대한 정보를 담은 action 객체
   switch (
@@ -38,6 +39,40 @@ const reducer = (state, action) => {
   }
 };
 //dispatch를 호출하면 reducer가 실행되고, 그 reducer가 리턴하는 값이 data의 값이 됨.
+=======
+//https://jsonplaceholder.typicode.com/comments
+/*
+const dummyList = [
+  {
+    id: 1,
+    author: "구태호",
+    content: "하이 1",
+    emotion: 5,
+    created_date: new Date().getTime(),
+  },
+  {
+    id: 2,
+    author: "홍길동",
+    content: "하이 2",
+    emotion: 2,
+    created_date: new Date().getTime(),
+  },
+  {
+    id: 3,
+    author: "유인나",
+    content: "하이 3",
+    emotion: 3,
+    created_date: new Date().getTime(),
+  },
+  {
+    id: 4,
+    author: "그리디언",
+    content: "하이 4",
+    emotion: 4,
+    created_date: new Date().getTime(),
+  },
+];*/
+>>>>>>> c4f99b745cb08886df3231212f289e91102104a6
 
 function App() {
   // const [data, setData] = useState([]); // data:일기 데이터, 일기 데이터는 빈배열로 시작, setDate: 일기 상태변화
